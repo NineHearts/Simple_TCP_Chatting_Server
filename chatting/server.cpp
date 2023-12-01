@@ -58,7 +58,6 @@ class Server
         boost::asio::ip::tcp::acceptor acceptor_;
 };
 
-
 int main(int argc, char* argv[])
 {
     try
@@ -71,8 +70,12 @@ int main(int argc, char* argv[])
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER);
         // 비동기 서버로 작업이 없어도 끝나지 않게 설정
         std::shared_ptr<Server> server = std::make_shared<Server>(*io_service, *strand, endpoint);
+        // 설정한 엔드포인트와 ipv4로 서버 객체 생성
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[1]));
+        std::shared_ptr<Server> server(new Server(*io_service, *strand, endpoint));
 
-        
+        io_context.run();
+
     }
     catch (std::exception& e)
     {
