@@ -17,7 +17,9 @@ class Session : public std::enable_shared_from_this<Session>
 ;
         
     private:
+        // 연결된 소켓과의 정보
         boost::asio::ip::tcp::socket socket_;
+
         boost::asio::io_service::strand& strand_;
 };
 
@@ -29,7 +31,10 @@ class Server
                 boost::asio::io_service::strand& strand,
                 boost::asio::ip::tcp::endpoint& endpoint)
                 : io_service_(io_service), strand_(strand), acceptor_(io_service, endpoint)
-        {}
+        {
+            std::shared_ptr<Session> session(new Session(io_service_, strand_));
+            acceptor_.async_accept(session->socket(), strand_.wrap(boost::bind(&server::onAccept, this, new_participant, _1)));
+        }
 
     private:
         boost::asio::io_service& io_service_;
