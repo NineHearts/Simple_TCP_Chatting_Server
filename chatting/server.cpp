@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<asio::io_service::work> work = std::make_shared<asio::io_service::work>(*io_service);
         // strand는 lock()과 같은 핸들링 작업이 필요 없어 코드 작성이 간편해짐
         std::shared_ptr<asio::io_service::strand> strand = std::make_shared<asio::io_service::strand>(*io_service);
+        
         // 엔드포인트 설정
         // boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER);
         // 엔드포인트를 설정하고 매개변수로 ipv4 서버 객체 생성
