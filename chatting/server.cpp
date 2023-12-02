@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <queue>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/thread/thread.hpp>
@@ -48,18 +49,51 @@ class Session : public std::enable_shared_from_this<Session>
     private:
         void readHandler(const boost::system::error_code& ec)
         {
+            using namespace boost::placeholders;
+
+            if (!ec)
+            {
+                received_msgs.pop();
+
+                if (!received_msgs.empty())
+                {
+                    boost::asio::async_write(socket_,
+                                            boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
+                                            strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), _1)));
+                }
+            }
+            else
+            {
+                server_.leave(shared_from_this());
+            }
 
         }
         void writeHandler(const boost::system::error_code& ec)
         {
+            using namespace boost::placeholders;
 
+            if (!ec)
+            {
+                received_msgs.pop();
+
+                if (!received_msgs.empty())
+                {
+                    boost::asio::async_write(socket_,
+                                            boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
+                                            strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), _1)));
+                }
+            }
+            else
+            {
+                server_.leave(shared_from_this());
+            }
         }
 
         // 연결된 소켓의 정보
         asio::ip::tcp::socket socket_;
         asio::io_service::strand& strand_;
         Server& server_;
-        std::vector<std::string> received_msgs;
+        std::queue<std::string> received_msgs;
 };
 
 
@@ -82,12 +116,13 @@ class Server
         void enter(std::shared_ptr<Session> session)
         {
             SessionList.push_back(session);
-            broadcast("asdf");
+            broadcast("someone entered");
         }
 
         void leave(std::shared_ptr<Session> session)
         {
             SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
+            broadcast("someone leave");
         }
 
     private:
