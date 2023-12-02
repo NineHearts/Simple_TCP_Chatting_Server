@@ -1,9 +1,10 @@
 #include <iostream>
+#include <string>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/thread/thread.hpp>
 
-// 엔드포인트에 쓰일 포트 번호
+// 엔드포인트 설정에 쓰일 포트 번호
 // const int PORT_NUMBER = 55555;
 
 namespace asio = boost::asio;
@@ -15,24 +16,40 @@ class Session : public std::enable_shared_from_this<Session>
         Session(asio::io_service& io_service,
                  asio::io_service::strand& strand) : 
                  socket_(io_service), strand_(strand)
-        {        
+        {
         }
 
         void start()
         {
-            // 연결된 세션의 정보를 출력
+            // 클라이언트가 연결되면 ip 정보를 출력
             asio::ip::tcp::endpoint endpoint = socket_.remote_endpoint();
             asio::ip::address clientAddress = endpoint.address();
             std::cout << "Client connected from " << clientAddress << std::endl;
             std::cout << "Session start" << std::endl;
         }
 
-        asio::ip::tcp::socket& get_socket() { return socket_; }
+        asio::ip::tcp::socket& get_socket()
+        {
+            return socket_;
+        }
+
+        void message_receive(const std::string msg)
+        {
+
+        }
     
     private:
+        void readHandler(const boost::system::error_code& ec)
+        {
+
+        }
+        void writeHandler(const boost::system::error_code& ec)
+        {
+
+        }
+
         // 연결된 소켓의 정보
         asio::ip::tcp::socket socket_;
-        // 비동기 작업의 
         asio::io_service::strand& strand_;
 };
 
@@ -45,26 +62,37 @@ class Server
                 asio::ip::tcp::endpoint& endpoint)
                 : io_service_(io_service), strand_(strand), acceptor_(io_service, endpoint)
         {
-            // bind 사용 시 placeholder 네임스페이스 사용 필요
+        }
+
+        void broadcast(const std::string msg)
+        {
             using namespace boost::placeholders;
-            // 
-            std::shared_ptr<Session> session(new Session(io_service_, strand_));
-            acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, _1)));
+            std::for_each(SessionList.begin(), SessionList.end(), boost::bind(&Session::message_receive, _1, msg));
+        }
+
+        void leave(std::shared_ptr<Session> session)
+        {
+            SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
         }
 
     private:
+    
         void start_session(std::shared_ptr<Session> new_session, const boost::system::error_code& ec)
         {
             if (!ec)
             {
+                // bind 사용 시 placeholder 네임스페이스 사용 필요
+                using namespace boost::placeholders;
+                std::shared_ptr<Session> session(new Session(io_service_, strand_));
+                acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, _1)));
                 new_session -> start();
             }
-
         }
         
         asio::io_service& io_service_;
         asio::io_service::strand& strand_;
         asio::ip::tcp::acceptor acceptor_;
+        std::vector<std::shared_ptr<Session>> SessionList;
 };
 
 int main(int argc, char* argv[])
@@ -83,7 +111,7 @@ int main(int argc, char* argv[])
         
         // 엔드포인트 설정
         // boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER);
-        // 엔드포인트를 설정하고 매개변수로 ipv4 서버 객체 생성
+        // 엔드포인트를 설정하고 ipv4 서버 생성
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi(argv[1]));
         std::shared_ptr<Server> server = std::make_shared<Server>(*io_service, *strand, endpoint);
         //std::shared_ptr<Server> server(new Server(*io_service, *strand, endpoint));
