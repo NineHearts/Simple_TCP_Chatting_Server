@@ -11,8 +11,9 @@ class Session : public std::enable_shared_from_this<Session>
 {
     public:
         Session(asio::io_service& io_service,
-                 asio::io_service::strand& strand) : 
-                 socket_(io_service), strand_(strand)
+                 asio::io_service::strand& strand,
+                 Server& server) : 
+                 socket_(io_service), strand_(strand), server_(server)
         {
         }
 
@@ -32,7 +33,16 @@ class Session : public std::enable_shared_from_this<Session>
 
         void message_receive(const std::string msg)
         {
+            using namespace boost::placeholders;
+            
+            bool busy = !received_msgs.empty();
 
+            if (!busy)
+            {
+                boost::asio::async_write(socket_,
+                                     boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
+                                     strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), _1)));
+            }
         }
     
     private:
@@ -48,6 +58,8 @@ class Session : public std::enable_shared_from_this<Session>
         // 연결된 소켓의 정보
         asio::ip::tcp::socket socket_;
         asio::io_service::strand& strand_;
+        Server& server_;
+        std::vector<std::string> received_msgs;
 };
 
 
@@ -72,6 +84,7 @@ class Server
             SessionList.push_back(session);
             broadcast("asdf");
         }
+
         void leave(std::shared_ptr<Session> session)
         {
             SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
@@ -85,7 +98,7 @@ class Server
             {
                 // bind 사용 시 placeholder 네임스페이스 사용 필요
                 using namespace boost::placeholders;
-                std::shared_ptr<Session> session(new Session(io_service_, strand_));
+                std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
                 acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, _1)));
                 new_session -> start();
             }
