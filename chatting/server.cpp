@@ -4,9 +4,6 @@
 #include <boost/bind/bind.hpp>
 #include <boost/thread/thread.hpp>
 
-// 엔드포인트 설정에 쓰일 포트 번호
-// const int PORT_NUMBER = 55555;
-
 namespace asio = boost::asio;
 
 // 서버에서 생성할 세션
@@ -70,6 +67,11 @@ class Server
             std::for_each(SessionList.begin(), SessionList.end(), boost::bind(&Session::message_receive, _1, msg));
         }
 
+        void enter(std::shared_ptr<Session> session)
+        {
+            SessionList.push_back(session);
+            broadcast("asdf");
+        }
         void leave(std::shared_ptr<Session> session)
         {
             SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
@@ -109,8 +111,7 @@ int main(int argc, char* argv[])
         // strand는 lock()과 같은 핸들링 작업이 필요 없어 코드 작성이 간편해짐
         std::shared_ptr<asio::io_service::strand> strand = std::make_shared<asio::io_service::strand>(*io_service);
         
-        // 엔드포인트 설정
-        // boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER);
+
         // 엔드포인트를 설정하고 ipv4 서버 생성
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi(argv[1]));
         std::shared_ptr<Server> server = std::make_shared<Server>(*io_service, *strand, endpoint);
