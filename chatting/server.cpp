@@ -18,7 +18,7 @@ class Session : public std::enable_shared_from_this<Session>
         {
         }
 
-        void start()
+        void init()
         {
             // 클라이언트가 연결되면 ip 정보를 출력
             asio::ip::tcp::endpoint endpoint = socket_.remote_endpoint();
@@ -135,7 +135,7 @@ class Server
                 using namespace boost::placeholders;
                 std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
                 acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, _1)));
-                new_session -> start();
+                new_session -> init();
             }
         }
         

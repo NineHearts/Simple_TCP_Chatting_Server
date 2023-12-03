@@ -19,7 +19,7 @@ class Session : public std::enable_shared_from_this<Session>
                  Server& server) : 
                  socket_(io_service), strand_(strand), server_(server){};
 
-        void start();
+        void init();
 
         asio::ip::tcp::socket& get_socket() { return socket_; }
 
