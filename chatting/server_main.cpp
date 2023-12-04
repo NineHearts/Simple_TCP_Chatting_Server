@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<asio::io_service::strand> strand = std::make_shared<asio::io_service::strand>(*io_service);
         
 
-        // 엔드포인트를 설정하고 ipv4 서버 생성
+        // ipv4 엔드포인트 생성
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi(argv[1]));
         std::shared_ptr<Server> server = std::make_shared<Server>(*io_service, *strand, endpoint);
         //std::shared_ptr<Server> server(new Server(*io_service, *strand, endpoint));

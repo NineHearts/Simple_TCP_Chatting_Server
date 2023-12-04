@@ -5,7 +5,6 @@
 #include <queue>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/thread/thread.hpp>
 
 #include "session.hpp"
 
@@ -33,10 +32,7 @@ class Server
 
         void leave(std::shared_ptr<Session> session)
         {
-            // fix it!
-            SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
-            //
-            broadcast("leave");
+            SessionList.erase(std::remove(SessionList.begin(), SessionList.end(), session), SessionList.end());
         }
 
     private:

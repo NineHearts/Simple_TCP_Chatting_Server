@@ -5,7 +5,6 @@
 #include <queue>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/thread/thread.hpp>
 
 namespace asio = boost::asio;
 
