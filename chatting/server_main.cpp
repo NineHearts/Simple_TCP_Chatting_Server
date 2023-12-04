@@ -1,56 +1,6 @@
-#pragma once
-
 #include "server.hpp"
 
 namespace asio = boost::asio;
-
-class Server
-{
-    public:
-        Server(asio::io_service& io_service,
-                asio::io_service::strand& strand,
-                asio::ip::tcp::endpoint& endpoint)
-                : io_service_(io_service), strand_(strand), acceptor_(io_service, endpoint)
-        {
-        }
-
-        void broadcast(const std::string msg)
-        {
-            std::for_each(SessionList.begin(), SessionList.end(), 
-                            boost::bind(&Session::message_receive, 
-                            boost::placeholders::_1, msg));
-        }
-
-        void enter(std::shared_ptr<Session> session)
-        {
-            SessionList.push_back(session);
-            broadcast("someone entered");
-        }
-
-        void leave(std::shared_ptr<Session> session)
-        {
-            SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
-            broadcast("someone leave");
-        }
-
-    private:
-    
-        void start_session(std::shared_ptr<Session> new_session, const boost::system::error_code& ec)
-        {
-            if (!ec)
-            {
-                std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
-                acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, 
-                                                                            boost::placeholders::_1)));
-                new_session -> init();
-            }
-        }
-        
-        asio::io_service& io_service_;
-        asio::io_service::strand& strand_;
-        asio::ip::tcp::acceptor acceptor_;
-        std::vector<std::shared_ptr<Session>> SessionList;
-};
 
 int main(int argc, char* argv[])
 {
