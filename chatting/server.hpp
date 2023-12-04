@@ -29,13 +29,14 @@ class Server
         void enter(std::shared_ptr<Session> session)
         {
             SessionList.push_back(session);
-            broadcast("someone entered");
         }
 
         void leave(std::shared_ptr<Session> session)
         {
+            // fix it!
             SessionList.erase(std::remove_if(SessionList.begin(), SessionList.end(), session), SessionList.end());
-            broadcast("someone leave");
+            //
+            broadcast("leave");
         }
 
     private:

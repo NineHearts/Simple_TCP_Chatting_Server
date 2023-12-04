@@ -8,6 +8,7 @@ void Session::init()
     asio::ip::address clientAddress = endpoint.address();
     std::cout << "Client connected from " << clientAddress << std::endl;
     std::cout << "Session start" << std::endl;
+    server_.enter(shared_from_this())
 }
 
 void Session::message_receive(const std::string msg)
@@ -26,17 +27,17 @@ void Session::message_receive(const std::string msg)
 
 void Session::readHandler(const boost::system::error_code& ec)
 {
-    using namespace boost::placeholders;
-
     if (!ec)
     {
-        received_msgs.pop();
+        server_.broadcast(received_msgs.front());
 
         if (!received_msgs.empty())
         {
             boost::asio::async_write(socket_,
                                     boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
-                                    strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), _1)));
+                                    strand_.wrap(boost::bind(&Session::writeHandler, 
+                                                                shared_from_this(), 
+                                                                boost::placeholders::_1)));
         }
     }
     else
@@ -47,8 +48,6 @@ void Session::readHandler(const boost::system::error_code& ec)
 }
 void Session::writeHandler(const boost::system::error_code& ec)
 {
-    using namespace boost::placeholders;
-
     if (!ec)
     {
         received_msgs.pop();
@@ -57,7 +56,9 @@ void Session::writeHandler(const boost::system::error_code& ec)
         {
             boost::asio::async_write(socket_,
                                     boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
-                                    strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), _1)));
+                                    strand_.wrap(boost::bind(&Session::writeHandler, 
+                                                                shared_from_this(), 
+                                                                boost::placeholders::_1)));
         }
     }
     else
