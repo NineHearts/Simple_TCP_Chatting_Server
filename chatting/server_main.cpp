@@ -1,13 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <queue>
-#include <boost/asio.hpp>
-#include <boost/bind/bind.hpp>
-#include <boost/thread/thread.hpp>
-
-#include "session.hpp"
+#include "server.hpp"
 
 namespace asio = boost::asio;
 
@@ -23,8 +16,9 @@ class Server
 
         void broadcast(const std::string msg)
         {
-            using namespace boost::placeholders;
-            std::for_each(SessionList.begin(), SessionList.end(), boost::bind(&Session::message_receive, _1, msg));
+            std::for_each(SessionList.begin(), SessionList.end(), 
+                            boost::bind(&Session::message_receive, 
+                            boost::placeholders::_1, msg));
         }
 
         void enter(std::shared_ptr<Session> session)
@@ -45,10 +39,9 @@ class Server
         {
             if (!ec)
             {
-                // bind 사용 시 placeholder 네임스페이스 사용 필요
-                using namespace boost::placeholders;
                 std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
-                acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, _1)));
+                acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, 
+                                                                            boost::placeholders::_1)));
                 new_session -> init();
             }
         }

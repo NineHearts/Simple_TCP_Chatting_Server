@@ -9,8 +9,6 @@
 
 namespace asio = boost::asio;
 
-class Server;
-
 class Session : public std::enable_shared_from_this<Session>
 {
     public:
@@ -22,7 +20,6 @@ class Session : public std::enable_shared_from_this<Session>
         void init();
 
         asio::ip::tcp::socket& get_socket() { return socket_; }
-
         void message_receive(const std::string msg);
     
     private:

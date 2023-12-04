@@ -1,4 +1,5 @@
 #include "session.hpp"
+#include "server.hpp"
 
 void Session::init()
 {
