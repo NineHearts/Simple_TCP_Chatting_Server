@@ -8,7 +8,7 @@ void Session::init()
     asio::ip::address clientAddress = endpoint.address();
     std::cout << "Client connected from " << clientAddress << std::endl;
     std::cout << "Session start" << std::endl;
-    server_.enter(shared_from_this())
+    server_.enter(shared_from_this());
 }
 
 void Session::message_receive(const std::string msg)
