@@ -16,6 +16,7 @@ class Server
                 asio::ip::tcp::endpoint& endpoint)
                 : io_service_(io_service), strand_(strand), acceptor_(io_service, endpoint)
         {
+            run();
         }
 
         void broadcast(const std::string msg)
@@ -36,20 +37,23 @@ class Server
         }
 
     private:
-    
+
+        void run()
+        {
+            std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
+            acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, 
+                                                                                    boost::placeholders::_1)));
+        }
         void start_session(std::shared_ptr<Session> new_session, const boost::system::error_code& ec)
         {
-            std::cout << "stssion start!" << std::endl;
             if (!ec)
             {
                 std::cout << "stssion start!" << std::endl;
-                std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
-                acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, 
-                                                                            boost::placeholders::_1)));
                 new_session -> init();
             }
             else
                 std::cout << "stssion failed" << std::endl;
+            run();
         }
         
         asio::io_service& io_service_;
