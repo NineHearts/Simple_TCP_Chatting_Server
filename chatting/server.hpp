@@ -48,11 +48,10 @@ class Server
         {
             if (!ec)
             {
-                std::cout << "stssion start!" << std::endl;
                 new_session -> init();
             }
             else
-                std::cout << "stssion failed" << std::endl;
+                std::cout << "Session init failed" << std::endl;
             run();
         }
         
