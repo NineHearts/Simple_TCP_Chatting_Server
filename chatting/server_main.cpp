@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
         //std::shared_ptr<Server> server(new Server(*io_service, *strand, endpoint));
 
         // 서버 실행
+        std::cout << "running server..." << std::endl;
         io_service->run();
 
     }

@@ -41,6 +41,7 @@ class Server
         {
             if (!ec)
             {
+                std::cout << "stssion start!" << std::endl;
                 std::shared_ptr<Session> session(new Session(io_service_, strand_, *this));
                 acceptor_.async_accept(session->get_socket(), strand_.wrap(boost::bind(&Server::start_session, this, session, 
                                                                             boost::placeholders::_1)));

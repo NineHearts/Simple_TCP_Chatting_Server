@@ -13,15 +13,14 @@ void Session::init()
 
 void Session::message_receive(const std::string msg)
 {
-    using namespace boost::placeholders;
-        
     bool busy = !received_msgs.empty();
-
+    std::cout << "msg receive" << std::endl;
     if (!busy)
     {
         boost::asio::async_write(socket_,
                                 boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
-                                strand_.wrap(boost::bind(&Session::readHandler, shared_from_this(), _1)));
+                                strand_.wrap(boost::bind(&Session::readHandler, shared_from_this(), 
+                                                boost::placeholders::_1)));
     }
 }
 
