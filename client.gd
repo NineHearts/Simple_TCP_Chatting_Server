@@ -44,7 +44,7 @@ func connect_to_host(host: String, port: int) -> void:
 	if _stream.connect_to_host(host, port) != OK:
 		print("Error connecting to host.")
 
-func _on_button_pressed():
+func _on_button_pressed() -> void:
 	var txt : String = get_node("CanvasLayer/Control/TextEdit").text
 	get_node("CanvasLayer/Control/TextEdit").clear()
 	var err : int = _stream.put_data(txt.to_utf8_buffer())
