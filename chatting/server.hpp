@@ -33,6 +33,7 @@ class Server
 
         void leave(std::shared_ptr<Session> session)
         {
+            std::cout << "session disconnected..." << std::endl;
             SessionList.erase(std::remove(SessionList.begin(), SessionList.end(), session), SessionList.end());
         }
 
