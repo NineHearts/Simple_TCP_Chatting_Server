@@ -39,6 +39,7 @@ class Server
     
         void start_session(std::shared_ptr<Session> new_session, const boost::system::error_code& ec)
         {
+            std::cout << "stssion start!" << std::endl;
             if (!ec)
             {
                 std::cout << "stssion start!" << std::endl;
@@ -47,6 +48,8 @@ class Server
                                                                             boost::placeholders::_1)));
                 new_session -> init();
             }
+            else
+                std::cout << "stssion failed" << std::endl;
         }
         
         asio::io_service& io_service_;
