@@ -19,7 +19,7 @@ void Session::message_receive(const std::string msg)
         //std::cout << "msg receive" << std::endl;
         boost::asio::async_write(socket_,
                                 boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
-                                strand_.wrap(boost::bind(&Session::readHandler, shared_from_this(), 
+                                strand_.wrap(boost::bind(&Session::writeHandler, shared_from_this(), 
                                                 boost::placeholders::_1)));
     }
 }
@@ -33,7 +33,7 @@ void Session::readHandler(const boost::system::error_code& ec)
         if (!received_msgs.empty())
         {
             boost::asio::async_read(socket_, boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
-                                    strand_.wrap(boost::bind(&Session::writeHandler, 
+                                    strand_.wrap(boost::bind(&Session::readHandler, 
                                                                 shared_from_this(), 
                                                                 boost::placeholders::_1)));
         }
