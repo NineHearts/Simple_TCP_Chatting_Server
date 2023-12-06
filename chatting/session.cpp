@@ -14,9 +14,9 @@ void Session::init()
 void Session::message_receive(const std::string msg)
 {
     bool busy = !received_msgs.empty();
-    std::cout << "msg receive" << std::endl;
     if (!busy)
     {
+        //std::cout << "msg receive" << std::endl;
         boost::asio::async_write(socket_,
                                 boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
                                 strand_.wrap(boost::bind(&Session::readHandler, shared_from_this(), 
@@ -48,11 +48,11 @@ void Session::writeHandler(const boost::system::error_code& ec)
 {
     if (!ec)
     {
-        received_msgs.pop();
+        write_msgs.pop();
 
-        if (!received_msgs.empty())
+        if (!write_msgs.empty())
         {
-            boost::asio::async_write(socket_, boost::asio::buffer(received_msgs.front(), received_msgs.front().size()),
+            boost::asio::async_write(socket_, boost::asio::buffer(write_msgs.front(), write_msgs.front().size()),
                                     strand_.wrap(boost::bind(&Session::writeHandler, 
                                                                 shared_from_this(), 
                                                                 boost::placeholders::_1)));
