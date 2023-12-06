@@ -6,6 +6,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 
+const unsigned int MAX_MESSAGE_SIZE = 1024;
+
 namespace asio = boost::asio;
 
 class Server;
@@ -31,4 +33,5 @@ class Session : public std::enable_shared_from_this<Session>
         asio::io_service::strand& strand_;
         Server& server_;
         std::queue<std::string> received_msgs;
+        std::queue<std::array<char, MAX_MESSAGE_SIZE>> write_msgs_;
 };
