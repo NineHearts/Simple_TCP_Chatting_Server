@@ -50,7 +50,7 @@ class Server
             if (!ec)
             {
                 new_session -> init();
-                broadcast("someone entered");
+                //broadcast("someone entered");
             }
             else
                 std::cout << "Session init failed" << std::endl;
