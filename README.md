@@ -15,3 +15,5 @@ C++의 Boost 라이브러리를 이용한 채팅 서버 (제작 중)
 ![1](https://github.com/NineHearts/Simple_TCP_Chatting_Server/assets/46129253/6a542c6c-9c0b-44b2-9a12-ea2dd4ba9377)
 
 현재까지 다중 접속을 구현하였으며, 브로드캐스팅 기능 구현중...
+
+* 클라이언트 연결 후 메세지 브로드캐스팅 시 튕기는 오류 수정중
